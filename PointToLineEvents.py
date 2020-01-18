@@ -85,8 +85,14 @@ class EventTableTool(object):
         # Import the groomer points from the CSV File
         if (loadCSV):
             if (arcpy.Exists(self.responseCSV)):
-                self.csvFile = CSVFile(self.responseCSV)
-                self.csvFile.MakeXYEventLayer(self.groomerLocations)
+                self.csvFile = CSVFile(self.responseCSV)               # Create CSV File Object
+                self.csvFile.MakeXYEventLayer(self.groomerLocations)   # Make the Event Layer
+                # Added this Jan 18, 2020
+                groomerLocationsTable = Table(self.groomerLocations)   # Create Table Object
+                groomerLocationsTable.AddOffsetHoursFields()           # Add Fields for Offset, Day ago and Hours ago
+                groomerLocationsTable.CalculateFieldDAYS_AGO()         # Calculate Days Ago
+                groomerLocationsTable.CalculateFieldHOURS_AGO()        # Calculate Hours Ago
+                # End of Addition
                 arcpy.AddMessage('Created XY Event Layer ' + self.groomerLocations + '.')
             else:
                 arcpy.AddMessage(self.responseCSV + ' does not exist.  Check that file in response parameter exists.')
@@ -115,6 +121,7 @@ class EventTableTool(object):
             self.searchDistance = "100 Feet"        
             eventTable.LocateFeaturesAlongRoutes(self.groomerLocations, self.searchDistance)    # Locate points along the route
             eventTable.AddEventFields()                                                         # Add Fields for line events
+            eventTable.AddOffsetHoursFields()                                                   # Add Fields for Offset, Days and Hours Ago
             eventTable.CalculateFieldTO_MEAS()                                                  # Calculate To Measures for some events.
             eventTable.CalculateFieldOFFSET()                                                   # Add Offset
             eventTable.CalculateFieldDAYS_AGO()                                                 # Calculate number of days ago
@@ -271,7 +278,35 @@ class Table(object):
             arcpy.AddMessage('Deleted table ' + self.tableName + '.')
         else:
             arcpy.AddMessage('Table ' + self.tableName + ' did not exist.')
-        return        
+        return
+    def AddOffsetHoursFields(self):
+        # Process: Add Field OFFSET
+        if (self.FieldExists('OFFSET')):
+            pass
+        else:
+            arcpy.AddField_management(self.tableName, "OFFSET", "LONG", "10", "", "", "Offset", "NULLABLE", "NON_REQUIRED", "")
+            arcpy.AddMessage('In EventTable Class function AddEventFields.  Added Line event fields OFFSET to ' + self.tableName + '.')
+        # Add filed DAYS_AGO
+        if (self.FieldExists('DAYS_AGO')):
+            pass
+        else:
+            arcpy.AddField_management(self.tableName, "DAYS_AGO", "LONG", "10", "", "", "Days since grooming", "NULLABLE", "NON_REQUIRED", "")
+            arcpy.AddMessage('In EventTable Class function AddEventFields.  Added Line event fields DAYS_AGO to ' + self.tableName + '.')
+        # Add filed HOURS_AGO
+        if (self.FieldExists('HOURS_AGO')):
+            pass
+        else:
+            arcpy.AddField_management(self.tableName, "HOURS_AGO", "LONG", "10", "", "", "Hours since grooming", "NULLABLE", "NON_REQUIRED", "")
+            arcpy.AddMessage('In EventTable Class function AddEventFields.  Added Line event fields HOURS_AGO to ' + self.tableName + '.')
+        return
+    def CalculateFieldDAYS_AGO(self):
+        # Calculate Field DAYS_AGO to the number of days from now
+        arcpy.CalculateField_management(self.tableName, "DAYS_AGO", "(datetime.date.today() - datetime.date(int(!LOCAL_DATE!.split('/')[2]), int(!LOCAL_DATE!.split('/')[0]), int(!LOCAL_DATE!.split('/')[1]))).days", "PYTHON", "")
+        return    
+    def CalculateFieldHOURS_AGO(self):
+        # Calculate Field HOURS_AGO to number of hours from now to grooming completion
+        arcpy.CalculateField_management(self.tableName,  "HOURS_AGO", "(!DAYS_AGO! * 24) + int(!LOCAL_TIME!.split(':')[0])", "PYTHON", "")
+        return 
 class EventTable(Table):
     # Class to manage the Event Table
     def __init__(self, EventTableName, RouteFeatureClassName, RouteEventKeyField):
@@ -294,24 +329,6 @@ class EventTable(Table):
         else:
             arcpy.AddMessage('In EventTable Class function AddEventFields.  Added Field TO_MEAS' + self.tableName + '.')
             arcpy.AddField_management(self.tableName, "TO_MEAS", "LONG", "10", "", "", "To Measure", "NULLABLE", "NON_REQUIRED", "")
-        # Process: Add Field OFFSET
-        if (self.FieldExists('OFFSET')):
-            pass
-        else:
-            arcpy.AddField_management(self.tableName, "OFFSET", "LONG", "10", "", "", "Offset", "NULLABLE", "NON_REQUIRED", "")
-            arcpy.AddMessage('In EventTable Class function AddEventFields.  Added Line event fields OFFSET to ' + self.tableName + '.')
-        # Add filed DAYS_AGO
-        if (self.FieldExists('DAYS_AGO')):
-            pass
-        else:
-            arcpy.AddField_management(self.tableName, "DAYS_AGO", "LONG", "10", "", "", "Days since grooming", "NULLABLE", "NON_REQUIRED", "")
-            arcpy.AddMessage('In EventTable Class function AddEventFields.  Added Line event fields DAYS_AGO to ' + self.tableName + '.')
-        # Add filed HOURS_AGO
-        if (self.FieldExists('HOURS_AGO')):
-            pass
-        else:
-            arcpy.AddField_management(self.tableName, "HOURS_AGO", "LONG", "10", "", "", "Hours since grooming", "NULLABLE", "NON_REQUIRED", "")
-            arcpy.AddMessage('In EventTable Class function AddEventFields.  Added Line event fields HOURS_AGO to ' + self.tableName + '.')
         return
     def CalculateFieldTO_MEAS(self):
         # Calculate Field TO_MEAS to the MEAS value which is the groomer point.
@@ -465,14 +482,7 @@ class EventTable(Table):
             errorMessage = 'Error in AddEventLayer  ' + e.message
             arcpy.AddError(errorMessage)            
         return
-    def CalculateFieldDAYS_AGO(self):
-        # Calculate Field DAYS_AGO to the number of days from now
-        arcpy.CalculateField_management(self.tableName, "DAYS_AGO", "(datetime.date.today() - datetime.date(int(!LOCAL_DATE!.split('/')[2]), int(!LOCAL_DATE!.split('/')[0]), int(!LOCAL_DATE!.split('/')[1]))).days", "PYTHON", "")
-        return    
-    def CalculateFieldHOURS_AGO(self):
-        # Calculate Field HOURS_AGO to number of hours from now to grooming completion
-        arcpy.CalculateField_management(self.tableName,  "HOURS_AGO", "(!DAYS_AGO! * 24) + int(!LOCAL_TIME!.split(':')[0])", "PYTHON", "")
-        return
+
     def LocateFeaturesAlongRoutes(self, PointFeatureClass, SearchDistance):
         # Purpose: Create a Point Event Layer from a Point layer by locating the points along the routes
         # Parameters:   PointFeatureClass   = The Feature Class with the Points that will be mapped along the route     Example:   "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Groomed_Points\\Groomer_Locations"
@@ -593,9 +603,13 @@ class CSVFile():
             arcpy.MultipartToSinglepart_management(self.groomerLocationsXY, self.groomerLocations)
             # Process: Delete Identical.   Added to remove any duplicates.
             arcpy.DeleteIdentical_management(self.groomerLocations, "Shape;UNIQUEID;COLLECTIONDATE;COLLECTIONTIME;LATITUDE;LONGITUDE;BEARING;SPEED;EVENTCODE;EVENTTAG;ESN;ALT_ESN;UNITID;LOCAL_DATE;LOCAL_TIME;ORIG_FID", "", "0")
+            # Added January 18th 2020
+
+
+
         except Exception as e:
             errorMessage = 'Error in CSVFile Class Method AddEventLayer  ' + e.message
-            arcpy.AddError(errorMessage)
+            arcpy.AddError(errorMessage)            
         return
 class MapDocument():
     def __init__(self, MapDocumentFile):
