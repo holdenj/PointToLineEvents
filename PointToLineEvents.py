@@ -397,7 +397,7 @@ class EventTable(Table):
         # DISTINCT, ORDER BY, and ALL are only supported when working with databases. They are not supported by other data sources (such as dBASE or INFO tables).
         # TOP is only supported by SQL Server and MS Access databases.  
         # http://desktop.arcgis.com/en/arcmap/10.3/analyze/arcpy-data-access/searchcursor-class.htm#C_GUID-3CB1DFF4-983D-445F-9CB2-0FF1CD4B4880
-        #
+        ## 
         if self.fieldValue == None:
             self.fieldValue  = "Unnamed"
             arcpy.AddMessage('Blank Trail name is now ' + self.fieldValue)        
