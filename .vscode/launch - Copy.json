@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: PointToLineEvents",
+            "type": "python",
+            "request": "launch",
+            "program": "C:\\AtlasTrackExample\\Trails\\ArcMap\\PointToLineEvents.py",
+            "console": "integratedTerminal",
+            "args": ["C:\\AtlasTrackExample\\Responses\\combned_csv_2019_12_30.csv",
+                     "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Groomed_Points\\Groomer_Locations",
+                     "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Non_Motorized\\Ski_Routes", 
+                     "AreaCode = 'I-90 Cabin Creek'", 
+                     "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\CabinCreekGroomerEvents_Test",
+                     "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Non_Motorized\\Ski_Routes",
+                     "C:\\AtlasTrackExample\\Trails\\Layers\\GroomerEvents.lyr"],
+            "cwd" :  "C:\\AtlasTrackExample\\Trails\\ArcMap",
+            "justMyCode": true            
+        }
+    ]
+}

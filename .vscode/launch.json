@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: PointToLineEvents",
+            "type": "python",
+            "request": "launch",
+            "program": "C:\\AtlasTrackExample\\PythonScripts\\PointToLineEvents\\PointToLineEvents.py",
+            "console": "integratedTerminal",
+            "args": ["C:\\AtlasTrackExample\\Responses\\Summaries\\MostCurrent.csv",
+                     "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Groomed_Points\\Groomer_Locations",
+                     "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Non_Motorized\\Route_Area", 
+                     "AreaCode = 'Washington State'", 
+                     "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Ski_Events",
+                     "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Non_Motorized\\Ski_Routes",
+                     "C:\\AtlasTrackExample\\Trails\\Layers\\Ski Grooming by Day.lyr"],
+            "cwd" :  "C:\\AtlasTrackExample\\PythonScripts\\PointToLineEvents",
+            "justMyCode": true            
+        }
+    ]
+}
