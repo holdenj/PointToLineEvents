@@ -307,8 +307,7 @@ class Table(object):
         # Calculate Field HOURS_AGO to number of hours from now to grooming completion
         arcpy.CalculateField_management(self.tableName,  "HOURS_AGO", "(!DAYS_AGO! * 24) + int(!LOCAL_TIME!.split(':')[0])", "PYTHON", "")
         return 
-class EventTable(Table):
-    # Class to manage the Event Table
+class EventTable(Table):  # Class to manage the Event Table
     def __init__(self, EventTableName, RouteFeatureClassName, RouteEventKeyField):
         # Initialize the Event Table
         self.eventTableName = EventTableName            # Name of the Table                                                 Example:    "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Groomed_Points\\Groomer_Locations"
@@ -482,15 +481,13 @@ class EventTable(Table):
             errorMessage = 'Error in AddEventLayer  ' + e.message
             arcpy.AddError(errorMessage)            
         return
-
     def LocateFeaturesAlongRoutes(self, PointFeatureClass, SearchDistance):
         # Purpose: Create a Point Event Layer from a Point layer by locating the points along the routes
         # Parameters:   PointFeatureClass   = The Feature Class with the Points that will be mapped along the route     Example:   "C:\\AtlasTrackExample\\Trails\\WinterTrailsStatePlane.gdb\\Groomed_Points\\Groomer_Locations"
         #               SearchDistance      = Distance from the line to search for                                      Example:   "100 Feet"
         # Process: Locate Features Along Routes from Model                                        
         self.pointFeatureClass = PointFeatureClass
-        self.searchDistance = SearchDistance
-        
+        self.searchDistance = SearchDistance        
         outputEventTableProperties = "NAME POINT MEAS"  
         # arcpy.LocateFeaturesAlongRoutes_lr(in_features,          in_routes,                  route_id_field,    SearchDistance,      out_table,     out_event_properties,             route_locations,distance_field,zero_length_events,in_fields,m_direction_offsetting)
         # arcpy.LocateFeaturesAlongRoutes_lr(Groomer_Locations,    Ski_Routes,                 "NAME",            "100 Feet",          GroomerEvents, Output_Event_Table_Properties,    "FIRST",        "DISTANCE",    "ZERO",           "FIELDS",  "M_DIRECTON")
