@@ -5,6 +5,7 @@ import os
 import traceback
 reload
 class EventToolbox(object):
+    # Toolbox for events
     def __init__(self):
         """Define the toolbox (the name of the toolbox is the name of the .pyt file)."""
         self.label = "Winter Trails Python Toolbox"
